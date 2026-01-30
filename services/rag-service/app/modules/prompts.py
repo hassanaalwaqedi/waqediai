@@ -6,7 +6,7 @@ Constructs structured prompts for LLM with citation enforcement.
 
 import logging
 
-from app.models import EnrichedQuery, ContextWindow, RankedChunk, QueryIntent
+from app.models import ContextWindow, EnrichedQuery, QueryIntent, RankedChunk
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class PromptBuilder:
     """
     LLM prompt construction.
-    
+
     Builds citation-enforced prompts for Arabic and English.
     """
 
@@ -55,7 +55,7 @@ Your response MUST include citations. Without citations, your answer is invalid.
     ) -> dict:
         """
         Build complete prompt for LLM.
-        
+
         Returns dict with 'system' and 'user' messages.
         """
         # Select language-appropriate system prompt

@@ -9,19 +9,19 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
+from auth_service.adapters import UserRepository, get_session
 from auth_service.api.schemas import (
-    UserCreateRequest,
-    UserUpdateRequest,
-    UserResponse,
-    UserListResponse,
-    RoleAssignRequest,
     ProblemDetail,
+    RoleAssignRequest,
+    UserCreateRequest,
+    UserListResponse,
+    UserResponse,
+    UserUpdateRequest,
 )
-from auth_service.adapters import get_session, UserRepository, RoleRepository
 from auth_service.core import hash_password
+from auth_service.core.tokens import TokenClaims
 from auth_service.domain import UserStatus
 from auth_service.middleware.auth import get_current_user, require_permission
-from auth_service.core.tokens import TokenClaims
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -54,7 +54,7 @@ async def list_users(
 ) -> UserListResponse:
     """
     List users in the current tenant.
-    
+
     Requires 'users:read:tenant' permission.
     """
     async with get_session() as session:
@@ -90,7 +90,7 @@ async def create_user(
 ) -> UserResponse:
     """
     Create a new user in the current tenant.
-    
+
     Requires 'users:create:tenant' permission.
     """
     async with get_session() as session:
@@ -145,7 +145,7 @@ async def get_user(
 ) -> UserResponse:
     """
     Get user by ID.
-    
+
     Users can view their own profile.
     Tenant admins can view any user in the tenant.
     """
@@ -184,7 +184,7 @@ async def update_user(
 ) -> UserResponse:
     """
     Update user.
-    
+
     Users can update their own profile.
     Admins can update status and department.
     """
@@ -226,7 +226,7 @@ async def assign_roles(
 ) -> UserResponse:
     """
     Assign roles to a user.
-    
+
     Requires 'users:manage:tenant' permission.
     """
     async with get_session() as session:

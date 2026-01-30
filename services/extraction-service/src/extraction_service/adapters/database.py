@@ -2,23 +2,21 @@
 Database adapter for extraction results.
 """
 
-from datetime import datetime, timezone
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
+from datetime import UTC, datetime
 from uuid import UUID
 
-from sqlalchemy import Column, String, Integer, Float, DateTime, Text
-from sqlalchemy.dialects.postgresql import UUID as PGUUID, JSONB
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy import DateTime, Float, Integer, String, Text, select
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import UUID as PGUUID
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import select, update
-from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
 from extraction_service.config import get_settings
 from extraction_service.domain import (
-    ExtractionType,
-    JobStatus,
-    ExtractionJob,
     ExtractionResult,
+    ExtractionType,
 )
 
 
@@ -136,7 +134,7 @@ class ExtractionRepository:
             processing_time_ms=result.processing_time_ms,
             mean_confidence=result.mean_confidence,
             detected_language=result.detected_language,
-            created_at=result.created_at or datetime.now(timezone.utc),
+            created_at=result.created_at or datetime.now(UTC),
         )
         self.session.add(model)
         await self.session.flush()

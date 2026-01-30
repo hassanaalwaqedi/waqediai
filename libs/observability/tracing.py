@@ -4,8 +4,9 @@ Tracing client stub for WaqediAI services.
 Provides OpenTelemetry-based distributed tracing.
 """
 
+from collections.abc import Generator
 from contextlib import contextmanager
-from typing import Any, Generator
+from typing import Any
 
 
 class TracingClient:

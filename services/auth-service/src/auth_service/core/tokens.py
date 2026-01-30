@@ -6,11 +6,10 @@ and token lifecycle management.
 """
 
 import secrets
-from datetime import datetime, timedelta, timezone
-from typing import Any
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
-from jose import jwt, JWTError, ExpiredSignatureError
+from jose import ExpiredSignatureError, JWTError, jwt
 from pydantic import BaseModel
 
 from auth_service.config import get_settings
@@ -67,19 +66,19 @@ def create_access_token(
 ) -> tuple[str, str]:
     """
     Create a signed JWT access token.
-    
+
     Args:
         user_id: Unique user identifier.
         tenant_id: User's tenant identifier.
         roles: List of role names.
         permissions: List of permission strings.
         dept_id: Optional department identifier.
-        
+
     Returns:
         Tuple of (token_string, jti).
     """
     settings = get_settings()
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     jti = str(uuid4())
 
     claims = {
@@ -116,13 +115,13 @@ def create_access_token(
 def decode_access_token(token: str) -> TokenClaims:
     """
     Decode and validate a JWT access token.
-    
+
     Args:
         token: JWT token string.
-        
+
     Returns:
         Validated token claims.
-        
+
     Raises:
         TokenExpiredError: If token has expired.
         TokenInvalidError: If token is invalid.
@@ -155,8 +154,8 @@ def decode_access_token(token: str) -> TokenClaims:
             roles=payload.get("roles", []),
             permissions=payload.get("permissions", []),
             jti=payload["jti"],
-            exp=datetime.fromtimestamp(payload["exp"], tz=timezone.utc),
-            iat=datetime.fromtimestamp(payload["iat"], tz=timezone.utc),
+            exp=datetime.fromtimestamp(payload["exp"], tz=UTC),
+            iat=datetime.fromtimestamp(payload["iat"], tz=UTC),
             iss=payload["iss"],
             aud=payload["aud"],
         )
@@ -170,10 +169,10 @@ def decode_access_token(token: str) -> TokenClaims:
 def create_refresh_token() -> str:
     """
     Create an opaque refresh token.
-    
+
     Uses cryptographically secure random bytes.
     The token should be stored hashed in the database.
-    
+
     Returns:
         256-bit random token as hex string.
     """
@@ -183,13 +182,13 @@ def create_refresh_token() -> str:
 def hash_refresh_token(token: str) -> str:
     """
     Hash a refresh token for storage.
-    
+
     Uses SHA-256 for fast comparison.
     (Argon2 is overkill for high-entropy tokens)
-    
+
     Args:
         token: Raw refresh token.
-        
+
     Returns:
         SHA-256 hash of the token.
     """
@@ -200,7 +199,7 @@ def hash_refresh_token(token: str) -> str:
 def generate_token_family_id() -> str:
     """
     Generate a unique token family ID.
-    
+
     Used to track token rotation and detect reuse.
     """
     return str(uuid4())

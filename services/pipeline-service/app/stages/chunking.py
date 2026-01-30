@@ -8,8 +8,8 @@ import logging
 import re
 from uuid import uuid4
 
-from app.models import NormalizedText, TextChunk
 from app.config import get_settings
+from app.models import NormalizedText, TextChunk
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class Chunker:
     """
     Semantic text chunker.
-    
+
     Creates chunks that respect sentence and paragraph boundaries.
     """
 

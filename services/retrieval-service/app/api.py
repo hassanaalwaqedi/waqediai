@@ -4,21 +4,20 @@ API route definitions for retrieval service.
 
 import time
 
-from fastapi import APIRouter, HTTPException
-
+from app.config import get_settings
+from app.logging import get_audit_logger, get_logger
+from app.qdrant_client import get_qdrant_service
 from app.schemas import (
+    DeleteRequest,
+    DeleteResponse,
+    HealthResponse,
     IndexRequest,
     IndexResponse,
     SearchRequest,
     SearchResponse,
     SearchResult,
-    DeleteRequest,
-    DeleteResponse,
-    HealthResponse,
 )
-from app.qdrant_client import get_qdrant_service
-from app.logging import get_audit_logger, get_logger
-from app.config import get_settings
+from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
 logger = get_logger(__name__)
@@ -29,7 +28,7 @@ audit = get_audit_logger()
 async def index_chunks(request: IndexRequest) -> IndexResponse:
     """
     Index knowledge chunks for semantic search.
-    
+
     Generates embeddings and stores in Qdrant.
     """
     settings = get_settings()
@@ -98,7 +97,7 @@ async def index_chunks(request: IndexRequest) -> IndexResponse:
 async def search_chunks(request: SearchRequest) -> SearchResponse:
     """
     Semantic search for relevant chunks.
-    
+
     Returns ranked results with relevance scores.
     """
     start_time = time.time()

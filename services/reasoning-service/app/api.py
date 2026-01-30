@@ -3,20 +3,18 @@ API route definitions for reasoning service.
 """
 
 import time
-from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Request
-from httpx import HTTPError
-
-from app.schemas import (
-    ReasoningRequest,
-    ReasoningResponse,
-    HealthResponse,
-    ErrorResponse,
-)
+from app.config import get_settings
 from app.llm_client import get_llm_client
 from app.logging import get_audit_logger, get_logger
-from app.config import get_settings
+from app.schemas import (
+    ErrorResponse,
+    HealthResponse,
+    ReasoningRequest,
+    ReasoningResponse,
+)
+from fastapi import APIRouter, HTTPException
+from httpx import HTTPError
 
 router = APIRouter()
 logger = get_logger(__name__)
@@ -35,7 +33,7 @@ audit = get_audit_logger()
 async def reason(request: ReasoningRequest) -> ReasoningResponse:
     """
     Execute AI reasoning on provided context.
-    
+
     Accepts pre-retrieved context chunks and returns a citation-backed answer.
     """
     settings = get_settings()

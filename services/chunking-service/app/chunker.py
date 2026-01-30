@@ -6,10 +6,9 @@ Provides multiple chunking strategies for document processing.
 
 import re
 from dataclasses import dataclass
-from uuid import uuid4
 
-from app.schemas import ChunkingStrategy, ChunkOutput
 from app.config import get_settings
+from app.schemas import ChunkingStrategy
 
 
 @dataclass

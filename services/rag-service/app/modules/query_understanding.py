@@ -4,12 +4,11 @@ Query understanding module.
 Normalizes, enriches, and classifies incoming queries.
 """
 
-import re
 import logging
-from typing import Optional
+import re
 
-from app.models import RAGQuery, EnrichedQuery, QueryIntent
 from app.config import get_settings
+from app.models import EnrichedQuery, QueryIntent, RAGQuery
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +16,7 @@ logger = logging.getLogger(__name__)
 class QueryUnderstanding:
     """
     Query analysis and enrichment.
-    
+
     Handles language detection, normalization, intent classification,
     and conversation context integration.
     """
@@ -127,7 +126,7 @@ class QueryUnderstanding:
 
         return keywords[:10]
 
-    def _get_conversation_context(self, conversation_id: Optional[str]) -> list[str]:
+    def _get_conversation_context(self, conversation_id: str | None) -> list[str]:
         """Get previous conversation turns."""
         if not conversation_id:
             return []

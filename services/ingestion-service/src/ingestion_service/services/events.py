@@ -6,7 +6,6 @@ Publishes document lifecycle events to Kafka.
 
 import json
 import logging
-from typing import Any
 
 from aiokafka import AIOKafkaProducer
 
@@ -19,7 +18,7 @@ logger = logging.getLogger(__name__)
 class EventPublisher:
     """
     Publishes document events to Kafka.
-    
+
     Uses document ID as partition key for ordering guarantees.
     """
 
@@ -30,7 +29,7 @@ class EventPublisher:
     async def publish(self, event: DocumentEvent) -> None:
         """
         Publish a document event.
-        
+
         Args:
             event: Document event to publish.
         """

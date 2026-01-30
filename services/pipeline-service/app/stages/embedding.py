@@ -5,10 +5,10 @@ Converts text chunks into vector embeddings.
 """
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from app.models import TextChunk, EmbeddedChunk
 from app.config import get_settings
+from app.models import EmbeddedChunk, TextChunk
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class Embedder:
     """
     Text embedding generator.
-    
+
     Uses sentence-transformers for consistent vector generation.
     """
 
@@ -52,7 +52,7 @@ class Embedder:
         embeddings = model.encode(texts, convert_to_numpy=True, show_progress_bar=False)
 
         embedded_chunks = []
-        for chunk, vector in zip(chunks, embeddings):
+        for chunk, vector in zip(chunks, embeddings, strict=False):
             embedded_chunks.append(EmbeddedChunk(
                 chunk_id=chunk.chunk_id,
                 document_id=chunk.document_id,
@@ -66,7 +66,7 @@ class Embedder:
                     "page_number": chunk.page_number,
                     "chunk_index": chunk.chunk_index,
                     "token_count": chunk.token_count,
-                    "embedded_at": datetime.now(timezone.utc).isoformat(),
+                    "embedded_at": datetime.now(UTC).isoformat(),
                 },
             ))
 

@@ -5,15 +5,15 @@ This is the main entry point for the service. Copy and customize
 for each new service.
 """
 
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from service_name.config import Settings, get_settings
 from service_name.api.routes import router
+from service_name.config import Settings, get_settings
 
 # Import from shared libraries (adjust path after creating service)
 # from libs.common import WaqediError

@@ -5,11 +5,10 @@ Configurable translation with multiple engine support.
 """
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Protocol
 
-from language_service.domain import TranslationResult, TranslationConfig, TranslationStrategy
-from language_service.config import get_settings
+from language_service.domain import TranslationConfig, TranslationResult, TranslationStrategy
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +27,7 @@ class TranslationEngineProtocol(Protocol):
 class MockTranslationEngine:
     """
     Mock translation engine for development.
-    
+
     In production, replace with Google/Azure/DeepL adapter.
     """
 
@@ -54,14 +53,14 @@ class MockTranslationEngine:
             engine=self.engine_name,
             engine_version=self.version,
             confidence=None,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
         )
 
 
 class TranslationService:
     """
     Translation service with configurable strategy.
-    
+
     Supports:
     - Native: Process in original language
     - Canonical: Translate everything to one language
@@ -86,7 +85,7 @@ class TranslationService:
                 translated_text=text,
                 engine="passthrough",
                 engine_version="1.0",
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
             )
 
         return await self.engine.translate(text, source_lang, target_lang)

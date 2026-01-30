@@ -6,17 +6,17 @@ Generates citation-backed answers using Ollama/Qwen.
 
 import logging
 import re
-import httpx
 
-from app.models import (
-    ContextWindow,
-    RankedChunk,
-    RAGResponse,
-    Citation,
-    AnswerType,
-    QueryIntent,
-)
+import httpx
 from app.config import get_settings
+from app.models import (
+    AnswerType,
+    Citation,
+    ContextWindow,
+    QueryIntent,
+    RAGResponse,
+    RankedChunk,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 class Generator:
     """
     LLM-based answer generation.
-    
+
     Uses Ollama with Qwen for citation-enforced generation.
     """
 

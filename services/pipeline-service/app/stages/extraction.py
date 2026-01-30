@@ -7,15 +7,14 @@ Extracts text from PDFs, images, and text files.
 import io
 import logging
 import time
-from pathlib import Path
 
+from app.config import get_settings
 from app.models import (
     DocumentInput,
+    DocumentType,
     ExtractedText,
     PageText,
-    DocumentType,
 )
-from app.config import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +22,7 @@ logger = logging.getLogger(__name__)
 class Extractor:
     """
     Multi-format document text extractor.
-    
+
     Handles native PDFs, scanned PDFs, images, and text files.
     """
 
@@ -99,7 +98,6 @@ class Extractor:
     def _ocr_pdf_pages(self, pdf) -> list[PageText]:
         """OCR each page of a scanned PDF."""
         from pdf2image import convert_from_bytes
-        import fitz
 
         pages = []
         reader = self._get_ocr_reader()

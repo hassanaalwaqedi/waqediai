@@ -8,7 +8,6 @@ import logging
 from typing import Protocol
 
 from language_service.domain import LanguageDetectionResult, Script
-from language_service.config import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +22,7 @@ class LanguageDetectorProtocol(Protocol):
 class HybridLanguageDetector:
     """
     Hybrid language detector using langdetect + fasttext.
-    
+
     - langdetect for short text (< 50 chars)
     - fasttext for longer content (higher accuracy)
     """
@@ -46,7 +45,7 @@ class HybridLanguageDetector:
     def detect(self, text: str) -> LanguageDetectionResult:
         """
         Detect language of text.
-        
+
         Uses langdetect for short text, fasttext for longer.
         """
         if not text or len(text.strip()) < 10:

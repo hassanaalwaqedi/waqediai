@@ -6,7 +6,6 @@ Coordinates the full document-to-embedding pipeline.
 
 import logging
 import time
-from typing import Optional
 
 from app.models import (
     DocumentInput,
@@ -14,13 +13,12 @@ from app.models import (
     ProcessingStatus,
 )
 from app.stages import (
-    get_extractor,
-    get_normalizer,
     get_chunker,
     get_embedder,
+    get_extractor,
+    get_normalizer,
     get_vector_store,
 )
-from app.config import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +26,7 @@ logger = logging.getLogger(__name__)
 class Pipeline:
     """
     Document ingestion pipeline orchestrator.
-    
+
     Coordinates: Extract → Normalize → Chunk → Embed → Store
     """
 
@@ -42,7 +40,7 @@ class Pipeline:
     def process(self, document: DocumentInput) -> PipelineResult:
         """
         Process a document through the full pipeline.
-        
+
         Each stage is executed with error handling to prevent
         cascading failures.
         """

@@ -9,8 +9,8 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import Depends, HTTPException, Request
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from jose import jwt, JWTError, ExpiredSignatureError
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from jose import ExpiredSignatureError, JWTError, jwt
 
 from ingestion_service.config import get_settings
 
@@ -42,7 +42,7 @@ async def get_current_user(
 ) -> TenantContext:
     """
     Extract and validate JWT from Authorization header.
-    
+
     In development mode, allows unauthenticated requests with default context.
     Returns tenant context for use in route handlers.
     """

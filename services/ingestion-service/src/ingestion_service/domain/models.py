@@ -2,13 +2,13 @@
 Domain models for document ingestion and lifecycle.
 """
 
+import secrets
+import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any
 from uuid import UUID
-import secrets
-import time
 
 
 class DocumentStatus(str, Enum):
@@ -70,16 +70,16 @@ class LegalHoldViolation(Exception):
 def generate_document_id() -> str:
     """
     Generate a unique, time-ordered document ID.
-    
+
     Format: doc_{timestamp_base32}_{random}
     """
     # Timestamp component for ordering (milliseconds since epoch)
     ts = int(time.time() * 1000)
     ts_part = format(ts, 'x')  # Hex encoding
-    
+
     # Random component for uniqueness
     random_part = secrets.token_hex(8)
-    
+
     return f"doc_{ts_part}_{random_part}"
 
 
@@ -87,7 +87,7 @@ def generate_document_id() -> str:
 class Document:
     """
     Core document entity.
-    
+
     Represents a document throughout its lifecycle.
     """
 
@@ -138,7 +138,7 @@ class Document:
     def transition_to(self, new_status: DocumentStatus) -> None:
         """
         Transition to a new status.
-        
+
         Raises:
             IllegalStateTransition: If transition is not allowed.
             LegalHoldViolation: If deleting a held document.

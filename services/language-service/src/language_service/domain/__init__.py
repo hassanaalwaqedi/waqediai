@@ -1,15 +1,15 @@
 """Domain package."""
 
 from language_service.domain.models import (
-    TranslationStrategy,
-    Script,
     LanguageDetectionResult,
+    LinguisticArtifact,
     NormalizationChange,
     NormalizationRecord,
-    TranslationResult,
-    LinguisticArtifact,
-    TranslationConfig,
     ProcessingJob,
+    Script,
+    TranslationConfig,
+    TranslationResult,
+    TranslationStrategy,
 )
 
 __all__ = [

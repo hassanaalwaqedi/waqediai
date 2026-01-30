@@ -1,10 +1,10 @@
 """Middleware package."""
 
 from auth_service.middleware.auth import (
-    get_current_user,
-    require_permission,
-    get_tenant_context,
     TenantContext,
+    get_current_user,
+    get_tenant_context,
+    require_permission,
 )
 
 __all__ = [

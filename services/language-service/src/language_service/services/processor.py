@@ -5,9 +5,10 @@ Coordinates detection, normalization, and translation.
 """
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
+from language_service.config import get_settings
 from language_service.domain import (
     LinguisticArtifact,
     TranslationConfig,
@@ -16,7 +17,6 @@ from language_service.domain import (
 from language_service.services.detection import get_language_detector
 from language_service.services.normalization import get_text_normalizer
 from language_service.services.translation import get_translation_service
-from language_service.config import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 class LanguageProcessor:
     """
     Orchestrates the language processing pipeline.
-    
+
     Detection → Normalization → Translation (optional)
     """
 
@@ -46,7 +46,7 @@ class LanguageProcessor:
     ) -> LinguisticArtifact:
         """
         Process text through the full language pipeline.
-        
+
         Args:
             document_id: Parent document ID.
             tenant_id: Tenant context.
@@ -54,7 +54,7 @@ class LanguageProcessor:
             page_number: Optional page reference.
             segment_index: Position in document.
             config: Translation configuration.
-            
+
         Returns:
             Complete LinguisticArtifact.
         """
@@ -121,7 +121,7 @@ class LanguageProcessor:
             translation_engine=translation_engine,
             page_number=page_number,
             segment_index=segment_index,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
 
         return artifact
@@ -135,13 +135,13 @@ class LanguageProcessor:
     ) -> list[LinguisticArtifact]:
         """
         Process all segments of a document.
-        
+
         Args:
             document_id: Parent document ID.
             tenant_id: Tenant context.
             segments: List of {"text": str, "page": int, "index": int}.
             config: Translation configuration.
-            
+
         Returns:
             List of LinguisticArtifacts.
         """

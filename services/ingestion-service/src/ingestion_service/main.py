@@ -5,18 +5,18 @@ Document Ingestion & Lifecycle Service for WaqediAI.
 """
 
 import logging
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 from uuid import uuid4
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from ingestion_service.config import Settings, get_settings
-from ingestion_service.api import documents_router
-from ingestion_service.services.events import close_producer
 from ingestion_service.adapters import get_storage_adapter
+from ingestion_service.api import documents_router
+from ingestion_service.config import Settings, get_settings
+from ingestion_service.services.events import close_producer
 
 
 def configure_logging(settings: Settings) -> None:

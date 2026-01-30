@@ -5,10 +5,10 @@ Provides a clean interface to S3-compatible storage with
 tenant isolation and immutability guarantees.
 """
 
-from abc import ABC, abstractmethod
+from collections.abc import AsyncIterable
 from dataclasses import dataclass
 from datetime import datetime
-from typing import AsyncIterable, Protocol
+from typing import Protocol
 from uuid import UUID
 
 import aioboto3
@@ -81,7 +81,7 @@ def build_storage_key(
 ) -> str:
     """
     Build a storage key with tenant isolation.
-    
+
     Format: {tenant_id}/{year}/{month}/{document_id}/{filename}
     """
     now = datetime.utcnow()
@@ -100,7 +100,7 @@ def build_storage_key(
 class S3StorageAdapter:
     """
     S3-compatible object storage adapter.
-    
+
     Works with MinIO, AWS S3, and other S3-compatible services.
     """
 

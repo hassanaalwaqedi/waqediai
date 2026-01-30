@@ -1,16 +1,16 @@
 """Services package."""
 
-from ingestion_service.services.upload import (
-    UploadService,
-    UploadError,
-    UnsupportedMediaType,
-    FileTooLarge,
-    QuotaExceeded,
-)
 from ingestion_service.services.events import (
     EventPublisher,
-    get_event_publisher,
     close_producer,
+    get_event_publisher,
+)
+from ingestion_service.services.upload import (
+    FileTooLarge,
+    QuotaExceeded,
+    UnsupportedMediaType,
+    UploadError,
+    UploadService,
 )
 
 __all__ = [

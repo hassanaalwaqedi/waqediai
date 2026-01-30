@@ -2,11 +2,11 @@
 Repository for document data access.
 """
 
-from datetime import datetime, timezone
-from typing import Sequence
+from collections.abc import Sequence
+from datetime import UTC, datetime
 from uuid import UUID
 
-from sqlalchemy import select, update, and_, func
+from sqlalchemy import and_, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ingestion_service.adapters.database import DocumentModel
@@ -51,7 +51,7 @@ class DocumentRepository:
         values = {"status": new_status.value}
 
         if timestamp_field:
-            values[timestamp_field] = datetime.now(timezone.utc)
+            values[timestamp_field] = datetime.now(UTC)
 
         await self.session.execute(
             update(DocumentModel)
@@ -76,7 +76,7 @@ class DocumentRepository:
             )
             .values(
                 status=DocumentStatus.DELETED.value,
-                deleted_at=datetime.now(timezone.utc),
+                deleted_at=datetime.now(UTC),
             )
         )
 

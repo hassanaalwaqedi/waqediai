@@ -5,17 +5,15 @@ Provides abstraction over STT engines with Whisper as primary implementation.
 """
 
 import logging
-import os
-import tempfile
 import time
 from pathlib import Path
 from typing import Protocol
 
-from extraction_service.domain import (
-    TranscriptSegment,
-    STTResult,
-)
 from extraction_service.config import get_settings
+from extraction_service.domain import (
+    STTResult,
+    TranscriptSegment,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +42,7 @@ class STTModelAdapter(Protocol):
 class WhisperAdapter:
     """
     OpenAI Whisper implementation of STT adapter.
-    
+
     Supports multilingual transcription with word-level timestamps.
     """
 

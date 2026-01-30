@@ -3,18 +3,17 @@ Chunking Service - FastAPI Application.
 """
 
 import asyncio
-from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 import logging
 import sys
-
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager, suppress
 
 from app.api import router
 from app.config import Settings, get_settings
 from app.kafka_handler import get_kafka_handler
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 
 @asynccontextmanager
@@ -28,24 +27,22 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     )
     logger = logging.getLogger(__name__)
     logger.info(f"Starting {settings.service_name} v{settings.service_version}")
-    
+
     # Start Kafka consumer
     kafka_handler = get_kafka_handler()
     await kafka_handler.start()
-    
+
     # Run consumer in background
     consumer_task = asyncio.create_task(kafka_handler.run())
     logger.info("Chunking Kafka consumer started in background")
-    
+
     yield
-    
+
     # Shutdown
     await kafka_handler.stop()
     consumer_task.cancel()
-    try:
+    with suppress(asyncio.CancelledError):
         await consumer_task
-    except asyncio.CancelledError:
-        pass
     logger.info(f"Shutting down {settings.service_name}")
 
 

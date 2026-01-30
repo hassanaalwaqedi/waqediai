@@ -4,26 +4,22 @@ Extraction orchestrator and job worker.
 
 import logging
 import time
-from datetime import datetime, timezone
-from pathlib import Path
+from datetime import UTC, datetime
 from uuid import UUID
 
-from extraction_service.config import get_settings
-from extraction_service.domain import (
-    ExtractionType,
-    JobStatus,
-    ExtractionJob,
-    ExtractionResult,
-    OCRResult,
-    STTResult,
-)
 from extraction_service.adapters import (
+    AudioPreprocessor,
+    ImagePreprocessor,
+    PDFProcessor,
+    get_language_detector,
     get_ocr_service,
     get_stt_service,
-    get_language_detector,
-    ImagePreprocessor,
-    AudioPreprocessor,
-    PDFProcessor,
+)
+from extraction_service.domain import (
+    ExtractionResult,
+    ExtractionType,
+    OCRResult,
+    STTResult,
 )
 
 logger = logging.getLogger(__name__)
@@ -32,7 +28,7 @@ logger = logging.getLogger(__name__)
 class ExtractionWorker:
     """
     Worker for processing extraction jobs.
-    
+
     Handles routing to OCR or STT based on file category.
     """
 
@@ -54,10 +50,10 @@ class ExtractionWorker:
     ) -> ExtractionResult:
         """
         Process a document for text extraction.
-        
+
         Routes to OCR or STT based on file category.
         """
-        start_time = time.time()
+        time.time()
 
         if file_category in ("DOCUMENT", "IMAGE"):
             result = await self._process_ocr(
@@ -100,7 +96,7 @@ class ExtractionWorker:
             processing_time_ms=processing_time,
             mean_confidence=mean_confidence,
             detected_language=detected_language,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
 
     async def _process_ocr(

@@ -6,35 +6,32 @@ No external auth providers.
 """
 
 import logging
-import secrets
-from datetime import datetime, timezone
-from typing import Optional
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from auth_service.adapters.database import get_session
 from auth_service.api.auth_schemas import (
-    SignupRequest,
-    SignupResponse,
-    LoginRequest,
-    TokenResponse,
-    VerifyEmailRequest,
-    VerifyEmailResponse,
     GoogleOAuthRequest,
     GoogleOAuthResponse,
+    LoginRequest,
+    SignupRequest,
+    SignupResponse,
+    TokenResponse,
     UserStatus,
+    VerifyEmailRequest,
+    VerifyEmailResponse,
 )
+from auth_service.config import get_settings
+from auth_service.core.google_oauth import get_google_verifier
 from auth_service.core.password import hash_password, verify_password
 from auth_service.core.tokens import create_access_token, create_refresh_token
-from auth_service.core.google_oauth import get_google_verifier
+from auth_service.services.audit import log_auth_event
 from auth_service.services.email_verification import (
     create_verification_token,
     verify_email_token,
 )
-from auth_service.services.audit import log_auth_event
-from auth_service.adapters.database import get_session
-from auth_service.config import get_settings
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 logger = logging.getLogger(__name__)
@@ -52,10 +49,10 @@ async def signup(
 ):
     """
     Register new user with email and password.
-    
+
     User is created in PENDING status until email verified.
     """
-    settings = get_settings()
+    get_settings()
 
     # Check if email already exists (prevent enumeration with generic message)
     result = await session.execute(
@@ -95,7 +92,7 @@ async def signup(
     await _assign_default_role(session, user_id, tenant_id)
 
     # Create verification token
-    token = await create_verification_token(session, user_id)
+    await create_verification_token(session, user_id)
 
     # TODO: Send verification email
     # await send_verification_email(request.email, token)
@@ -160,7 +157,7 @@ async def login(
 ):
     """
     Login with email and password.
-    
+
     Blocked if email not verified.
     """
     settings = get_settings()
@@ -262,7 +259,7 @@ async def google_oauth(
 ):
     """
     Login/signup with Google.
-    
+
     - Validates Google ID token
     - Creates user if new
     - Email auto-verified (trusted by Google)
@@ -397,7 +394,7 @@ async def google_oauth(
 
 async def _get_or_create_tenant(
     session: AsyncSession,
-    invite_token: Optional[str],
+    invite_token: str | None,
 ) -> UUID:
     """Get tenant from invite or create default."""
     # TODO: Implement invite token logic

@@ -2,19 +2,17 @@
 API routes for chunking service.
 """
 
-import time
 from uuid import uuid4
 
-from fastapi import APIRouter
-
-from app.schemas import (
-    ChunkRequest,
-    ChunkResponse,
-    ChunkOutput,
-    HealthResponse,
-)
 from app.chunker import get_chunker
 from app.config import get_settings
+from app.schemas import (
+    ChunkOutput,
+    ChunkRequest,
+    ChunkResponse,
+    HealthResponse,
+)
+from fastapi import APIRouter
 
 router = APIRouter()
 

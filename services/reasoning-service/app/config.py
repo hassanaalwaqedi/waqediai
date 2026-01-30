@@ -4,7 +4,6 @@ Reasoning Service Configuration.
 Environment-based configuration for LLM integration and service settings.
 """
 
-import os
 from functools import lru_cache
 from typing import Literal
 

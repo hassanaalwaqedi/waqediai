@@ -8,11 +8,10 @@ Does NOT store any OAuth tokens.
 
 import logging
 from dataclasses import dataclass
-from typing import Optional
 
 import httpx
-from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token
 
 logger = logging.getLogger(__name__)
 
@@ -27,17 +26,17 @@ class GoogleUserInfo:
     provider_user_id: str  # sub claim
     email: str
     email_verified: bool
-    name: Optional[str]
-    picture: Optional[str]
-    given_name: Optional[str]
-    family_name: Optional[str]
-    locale: Optional[str]
+    name: str | None
+    picture: str | None
+    given_name: str | None
+    family_name: str | None
+    locale: str | None
 
 
 class GoogleTokenVerifier:
     """
     Verifies Google ID tokens securely.
-    
+
     Features:
     - Validates signature using Google's public keys
     - Verifies issuer (accounts.google.com)
@@ -50,10 +49,10 @@ class GoogleTokenVerifier:
         self.client_id = client_id
         self._request = google_requests.Request()
 
-    async def verify_id_token(self, token: str) -> Optional[GoogleUserInfo]:
+    async def verify_id_token(self, token: str) -> GoogleUserInfo | None:
         """
         Verify Google ID token and extract user info.
-        
+
         Uses google-auth library for secure verification.
         Returns None if verification fails.
         """
@@ -93,10 +92,10 @@ class GoogleTokenVerifier:
             logger.exception(f"Unexpected error verifying token: {e}")
             return None
 
-    async def verify_id_token_fallback(self, token: str) -> Optional[GoogleUserInfo]:
+    async def verify_id_token_fallback(self, token: str) -> GoogleUserInfo | None:
         """
         Fallback verification using Google's tokeninfo endpoint.
-        
+
         Use this if google-auth library is not available.
         """
         try:

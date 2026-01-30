@@ -3,7 +3,7 @@ Common utility functions for WaqediAI services.
 """
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 
 def generate_id(prefix: str = "") -> str:
@@ -33,7 +33,7 @@ def utc_now() -> datetime:
     Returns:
         Timezone-aware datetime in UTC.
     """
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def truncate_text(text: str, max_length: int = 100, suffix: str = "...") -> str:

@@ -2,16 +2,15 @@
 Reasoning Service - FastAPI Application Bootstrap.
 """
 
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
-
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 
 from app.api import router
 from app.config import Settings, get_settings
 from app.logging import configure_logging, get_logger
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 
 @asynccontextmanager

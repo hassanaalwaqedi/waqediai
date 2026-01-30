@@ -1,17 +1,17 @@
 """Domain package."""
 
 from extraction_service.domain.models import (
-    ExtractionType,
-    JobStatus,
     BoundingBox,
-    TextBlock,
-    OCRPageResult,
-    OCRResult,
-    TranscriptSegment,
-    STTResult,
     ExtractionJob,
     ExtractionResult,
+    ExtractionType,
+    JobStatus,
     LanguageResult,
+    OCRPageResult,
+    OCRResult,
+    STTResult,
+    TextBlock,
+    TranscriptSegment,
 )
 
 __all__ = [

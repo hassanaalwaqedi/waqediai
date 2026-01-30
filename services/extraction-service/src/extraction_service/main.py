@@ -4,15 +4,15 @@ Extraction Service - FastAPI Application.
 
 import asyncio
 import logging
-from contextlib import asynccontextmanager
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager, suppress
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from extraction_service.config import Settings, get_settings
 from extraction_service.adapters.kafka_handler import get_kafka_handler
+from extraction_service.config import Settings, get_settings
 
 
 def configure_logging(settings: Settings) -> None:
@@ -39,7 +39,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Start Kafka consumer
     kafka_handler = get_kafka_handler()
     await kafka_handler.start()
-    
+
     # Run consumer in background task
     consumer_task = asyncio.create_task(kafka_handler.run())
     logger.info("Kafka consumer started in background")
@@ -49,10 +49,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Shutdown
     await kafka_handler.stop()
     consumer_task.cancel()
-    try:
+    with suppress(asyncio.CancelledError):
         await consumer_task
-    except asyncio.CancelledError:
-        pass
     logger.info(f"Shutting down {settings.service_name}")
 
 

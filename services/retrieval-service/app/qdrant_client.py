@@ -7,12 +7,11 @@ Handles collection management, indexing, and similarity search.
 from dataclasses import dataclass
 from uuid import UUID
 
+from app.config import get_settings
+from app.embeddings import get_embedding_service
+from app.logging import get_logger
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
-
-from app.config import get_settings
-from app.logging import get_logger
-from app.embeddings import get_embedding_service
 
 logger = get_logger(__name__)
 
@@ -38,7 +37,7 @@ class SearchHit:
 class QdrantService:
     """
     Qdrant vector database service.
-    
+
     Uses shared collection with tenant filtering for isolation.
     """
 
@@ -82,12 +81,12 @@ class QdrantService:
     ) -> int:
         """
         Index text chunks into Qdrant.
-        
+
         Args:
             tenant_id: Tenant for isolation.
             document_id: Parent document ID.
             chunks: List of {"chunk_id", "text", "language"}.
-            
+
         Returns:
             Number of chunks indexed.
         """
@@ -100,7 +99,7 @@ class QdrantService:
 
         # Build points
         points = []
-        for chunk, embedding in zip(chunks, embeddings):
+        for chunk, embedding in zip(chunks, embeddings, strict=False):
             point_id = f"{tenant_id}_{document_id}_{chunk['chunk_id']}"
             points.append(models.PointStruct(
                 id=point_id,
@@ -134,14 +133,14 @@ class QdrantService:
     ) -> list[SearchHit]:
         """
         Perform semantic search within tenant scope.
-        
+
         Args:
             tenant_id: Tenant for isolation (mandatory).
             query: Search query.
             top_k: Number of results.
             language: Optional language filter.
             min_score: Optional minimum score threshold.
-            
+
         Returns:
             List of SearchHit results.
         """
@@ -192,11 +191,11 @@ class QdrantService:
     def delete_document(self, tenant_id: UUID, document_id: str) -> int:
         """
         Delete all vectors for a document.
-        
+
         Args:
             tenant_id: Tenant for isolation.
             document_id: Document to delete.
-            
+
         Returns:
             Number of points deleted.
         """

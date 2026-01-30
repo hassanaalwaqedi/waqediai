@@ -6,7 +6,7 @@ as of OWASP and NIST guidelines.
 """
 
 from argon2 import PasswordHasher, Type
-from argon2.exceptions import VerifyMismatchError, InvalidHashError
+from argon2.exceptions import InvalidHashError, VerifyMismatchError
 
 from auth_service.config import get_settings
 
@@ -14,7 +14,7 @@ from auth_service.config import get_settings
 def get_password_hasher() -> PasswordHasher:
     """
     Get configured Argon2 password hasher.
-    
+
     Settings follow OWASP recommendations:
     - Memory: 64 MB
     - Iterations: 3
@@ -45,13 +45,13 @@ def _get_hasher() -> PasswordHasher:
 def hash_password(password: str) -> str:
     """
     Hash a password using Argon2id.
-    
+
     Args:
         password: Plain text password.
-        
+
     Returns:
         Argon2id hash string.
-        
+
     Example:
         >>> hash_password("secure_password")
         '$argon2id$v=19$m=65536,t=3,p=4$...'
@@ -62,14 +62,14 @@ def hash_password(password: str) -> str:
 def verify_password(password: str, password_hash: str) -> bool:
     """
     Verify a password against its hash.
-    
+
     Args:
         password: Plain text password to verify.
         password_hash: Stored Argon2id hash.
-        
+
     Returns:
         True if password matches, False otherwise.
-        
+
     Note:
         This function is timing-safe to prevent timing attacks.
     """
@@ -86,14 +86,14 @@ def verify_password(password: str, password_hash: str) -> bool:
 def needs_rehash(password_hash: str) -> bool:
     """
     Check if a password hash needs to be rehashed.
-    
+
     This is useful when upgrading hash parameters.
     After verifying a password, check if it needs rehashing
     with updated parameters.
-    
+
     Args:
         password_hash: Existing password hash.
-        
+
     Returns:
         True if the hash should be updated.
     """

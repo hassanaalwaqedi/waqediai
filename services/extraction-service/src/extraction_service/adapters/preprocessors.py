@@ -6,9 +6,7 @@ Handles image, audio, and PDF preprocessing for extraction.
 
 import io
 import logging
-import tempfile
 from pathlib import Path
-from typing import AsyncIterable
 
 from extraction_service.config import get_settings
 
@@ -18,14 +16,14 @@ logger = logging.getLogger(__name__)
 class ImagePreprocessor:
     """
     Prepare images for OCR.
-    
+
     Applies deskewing, noise removal, and normalization.
     """
 
     def preprocess(self, image_bytes: bytes) -> bytes:
         """
         Preprocess image for better OCR results.
-        
+
         Steps:
         1. Convert to RGB if needed
         2. Resize if too large
@@ -60,7 +58,7 @@ class ImagePreprocessor:
 class AudioPreprocessor:
     """
     Prepare audio for STT.
-    
+
     Handles format conversion, normalization, and extraction from video.
     """
 
@@ -77,7 +75,7 @@ class AudioPreprocessor:
     ) -> Path:
         """
         Preprocess audio for STT.
-        
+
         Converts to 16kHz mono WAV.
         """
         from pydub import AudioSegment
@@ -117,7 +115,7 @@ class AudioPreprocessor:
 class PDFProcessor:
     """
     Handle PDF documents.
-    
+
     Converts PDF pages to images for OCR.
     """
 
@@ -127,7 +125,7 @@ class PDFProcessor:
     def extract_pages(self, pdf_bytes: bytes) -> list[bytes]:
         """
         Convert PDF pages to images.
-        
+
         Returns list of PNG images.
         """
         from pdf2image import convert_from_bytes
@@ -150,7 +148,7 @@ class PDFProcessor:
     def is_scanned(self, pdf_bytes: bytes) -> bool:
         """
         Detect if PDF is scanned (image-based) vs native text.
-        
+
         Simple heuristic: check if extractable text is minimal.
         """
         try:

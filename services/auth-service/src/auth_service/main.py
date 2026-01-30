@@ -5,15 +5,15 @@ Identity, Authentication & Authorization Service for WaqediAI.
 """
 
 import logging
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from auth_service.config import Settings, get_settings
 from auth_service.api import auth_router, users_router
+from auth_service.config import Settings, get_settings
 
 
 def configure_logging(settings: Settings) -> None:
@@ -29,7 +29,7 @@ def configure_logging(settings: Settings) -> None:
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """
     Manage application lifecycle.
-    
+
     - Startup: Initialize database connections, logging
     - Shutdown: Close connections, cleanup
     """
@@ -55,10 +55,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 def create_app(settings: Settings | None = None) -> FastAPI:
     """
     Application factory.
-    
+
     Args:
         settings: Optional settings override (useful for testing).
-        
+
     Returns:
         Configured FastAPI application.
     """

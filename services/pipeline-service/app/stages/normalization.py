@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class Normalizer:
     """
     Language-aware text normalizer.
-    
+
     Handles Arabic and English with appropriate rules.
     """
 

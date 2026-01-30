@@ -5,17 +5,18 @@ Provides FastAPI dependencies for extracting and validating
 JWT tokens, and enforcing permissions.
 """
 
-from typing import Annotated, Callable
+from collections.abc import Callable
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import Depends, HTTPException, Request
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from auth_service.core.tokens import (
-    decode_access_token,
     TokenClaims,
     TokenExpiredError,
     TokenInvalidError,
+    decode_access_token,
 )
 from auth_service.services.audit import log_authorization_decision
 
@@ -27,9 +28,9 @@ async def get_current_user(
 ) -> TokenClaims:
     """
     Extract and validate JWT from Authorization header.
-    
+
     Returns the token claims if valid.
-    
+
     Raises:
         HTTPException 401: If token is missing, expired, or invalid.
     """
@@ -63,16 +64,16 @@ async def get_current_user(
 def require_permission(resource: str, action: str, scope: str) -> Callable:
     """
     Create a dependency that checks for a specific permission.
-    
+
     Usage:
         @router.get("/", dependencies=[Depends(require_permission("users", "read", "tenant"))])
         async def list_users(): ...
-    
+
     Args:
         resource: Resource type (e.g., "users", "documents")
         action: Action type (e.g., "read", "create", "delete")
         scope: Permission scope (e.g., "own", "department", "tenant")
-    
+
     Returns:
         FastAPI dependency that checks the permission.
     """
@@ -140,7 +141,7 @@ async def get_tenant_context(
 ) -> TenantContext:
     """
     Extract tenant context from JWT.
-    
+
     This dependency can be used to get the tenant context
     without requiring the full user claims.
     """

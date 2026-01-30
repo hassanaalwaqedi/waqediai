@@ -7,8 +7,8 @@ Selects and orders chunks for optimal LLM context.
 import logging
 from difflib import SequenceMatcher
 
-from app.models import RetrievedChunk, RankedChunk, ContextWindow
 from app.config import get_settings
+from app.models import ContextWindow, RankedChunk, RetrievedChunk
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class ContextAssembler:
     """
     Context ranking and assembly.
-    
+
     Performs:
     1. Relevance-based reranking
     2. Diversity scoring (avoid redundancy)
@@ -56,8 +56,8 @@ class ContextAssembler:
         selected = self._select_within_budget(scored_chunks, top_k)
 
         # Collect metadata
-        languages = list(set(c.language for c in selected))
-        doc_ids = list(set(c.document_id for c in selected))
+        languages = list({c.language for c in selected})
+        doc_ids = list({c.document_id for c in selected})
         total_tokens = sum(self._estimate_tokens(c.text) for c in selected)
 
         logger.info(

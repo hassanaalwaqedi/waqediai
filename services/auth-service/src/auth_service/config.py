@@ -14,7 +14,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     """
     Auth service configuration.
-    
+
     All secrets must be provided via environment variables.
     No defaults for security-sensitive values in production.
     """

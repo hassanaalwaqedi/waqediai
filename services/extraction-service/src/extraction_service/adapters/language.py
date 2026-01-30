@@ -3,6 +3,7 @@ Language detection utility.
 """
 
 import logging
+
 from extraction_service.domain import LanguageResult
 
 logger = logging.getLogger(__name__)
@@ -11,17 +12,17 @@ logger = logging.getLogger(__name__)
 class LanguageDetector:
     """
     Detect language from text.
-    
+
     Uses langdetect library for lightweight detection.
     """
 
     def detect(self, text: str) -> LanguageResult:
         """
         Detect language of text.
-        
+
         Args:
             text: Text to analyze.
-            
+
         Returns:
             Language detection result.
         """

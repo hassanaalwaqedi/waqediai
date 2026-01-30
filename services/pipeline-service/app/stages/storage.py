@@ -5,13 +5,12 @@ Stores embedded chunks in Qdrant with tenant isolation.
 """
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
+from app.config import get_settings
+from app.models import EmbeddedChunk
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
-
-from app.models import EmbeddedChunk
-from app.config import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +18,7 @@ logger = logging.getLogger(__name__)
 class VectorStore:
     """
     Qdrant vector store with tenant isolation.
-    
+
     Uses a shared collection with mandatory tenant_id filtering.
     """
 
@@ -72,7 +71,7 @@ class VectorStore:
     def store(self, chunks: list[EmbeddedChunk]) -> int:
         """
         Store embedded chunks in Qdrant.
-        
+
         Returns number of vectors stored.
         """
         if not chunks:
@@ -97,7 +96,7 @@ class VectorStore:
                     "page_number": chunk.metadata.get("page_number"),
                     "chunk_index": chunk.metadata.get("chunk_index"),
                     "token_count": chunk.metadata.get("token_count"),
-                    "ingestion_timestamp": datetime.now(timezone.utc).isoformat(),
+                    "ingestion_timestamp": datetime.now(UTC).isoformat(),
                 },
             ))
 
@@ -118,7 +117,7 @@ class VectorStore:
 
     def delete_document(self, tenant_id: str, document_id: str) -> int:
         """Delete all vectors for a document."""
-        result = self.client.delete(
+        self.client.delete(
             collection_name=self.collection_name,
             points_selector=models.FilterSelector(
                 filter=models.Filter(

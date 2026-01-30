@@ -5,7 +5,6 @@ Defines strict input/output contracts for AI reasoning requests.
 """
 
 from enum import Enum
-from typing import Annotated
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator

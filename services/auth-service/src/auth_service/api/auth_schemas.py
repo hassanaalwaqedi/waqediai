@@ -4,7 +4,6 @@ Auth Schemas for Signup, Login, OAuth
 
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
@@ -26,7 +25,7 @@ class SignupRequest(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8, max_length=128)
     display_name: str = Field(..., min_length=2, max_length=100)
-    invite_token: Optional[str] = None
+    invite_token: str | None = None
 
     @field_validator("password")
     @classmethod
@@ -79,7 +78,7 @@ class TokenResponse(BaseModel):
 class GoogleOAuthRequest(BaseModel):
     """Google OAuth request with ID token."""
     id_token: str
-    invite_token: Optional[str] = None
+    invite_token: str | None = None
 
 
 class GoogleOAuthResponse(BaseModel):

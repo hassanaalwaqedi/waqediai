@@ -2,26 +2,21 @@
 Database adapter for document metadata.
 """
 
-from datetime import datetime, timezone
-from typing import Sequence
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
+from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy import (
-    Column,
-    String,
-    Boolean,
     BigInteger,
+    Boolean,
     DateTime,
-    Text,
-    select,
-    update,
-    and_,
+    String,
 )
-from sqlalchemy.dialects.postgresql import UUID as PGUUID, JSONB
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import UUID as PGUUID
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
 from ingestion_service.config import get_settings
 from ingestion_service.domain.models import (
@@ -118,7 +113,7 @@ class DocumentModel(Base):
             legal_hold=doc.legal_hold,
             storage_bucket=doc.storage_bucket,
             storage_key=doc.storage_key,
-            uploaded_at=doc.uploaded_at or datetime.now(timezone.utc),
+            uploaded_at=doc.uploaded_at or datetime.now(UTC),
             validated_at=doc.validated_at,
             processed_at=doc.processed_at,
             archived_at=doc.archived_at,

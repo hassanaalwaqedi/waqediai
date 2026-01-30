@@ -5,11 +5,11 @@ Language-aware text normalization with traceability.
 """
 
 import logging
-import unicodedata
 import re
+import unicodedata
 
-from language_service.domain import NormalizationChange, NormalizationRecord
 from language_service.config import get_settings
+from language_service.domain import NormalizationChange, NormalizationRecord
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ NORMALIZATION_RULES = {
 class TextNormalizer:
     """
     Language-aware text normalizer.
-    
+
     Applies normalization rules while preserving meaning
     and tracking all changes for auditability.
     """
@@ -49,11 +49,11 @@ class TextNormalizer:
     def normalize(self, text: str, language: str = "en") -> NormalizationRecord:
         """
         Normalize text with full traceability.
-        
+
         Args:
             text: Raw text to normalize.
             language: ISO 639-1 language code.
-            
+
         Returns:
             NormalizationRecord with original, normalized, and changes.
         """

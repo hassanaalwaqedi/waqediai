@@ -4,15 +4,13 @@ Guest Query Handler for RAG Service
 Handles AI queries from guest users with restrictions.
 """
 
-from typing import Optional
-from fastapi import APIRouter, Request, HTTPException, Depends
-from pydantic import BaseModel
 
 from app.middleware.guest_aware import (
     RequestContext,
     allow_guest,
-    AuthState,
 )
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 
 router = APIRouter()
 
@@ -21,7 +19,7 @@ class GuestQueryRequest(BaseModel):
     """Query request that works for both guests and authenticated users."""
     query: str
     top_k: int = 3  # Limited for guests
-    guest_id: Optional[str] = None
+    guest_id: str | None = None
 
 
 class GuestQueryResponse(BaseModel):
@@ -30,8 +28,8 @@ class GuestQueryResponse(BaseModel):
     citations: list[dict]
     confidence: float
     auth_state: str
-    messages_remaining: Optional[int] = None
-    upgrade_prompt: Optional[str] = None
+    messages_remaining: int | None = None
+    upgrade_prompt: str | None = None
 
 
 # Guest limits
@@ -46,26 +44,26 @@ async def public_query(
 ):
     """
     Public query endpoint that supports both guests and authenticated users.
-    
+
     Guests:
     - Limited to demo/public knowledge
     - Restricted top_k
     - Shows upgrade prompts after limit
-    
+
     Authenticated:
     - Full access to tenant knowledge
     - Higher limits
     """
     # Apply guest restrictions
     if context.is_guest:
-        top_k = min(request.top_k, GUEST_TOP_K_LIMIT)
-        
+        min(request.top_k, GUEST_TOP_K_LIMIT)
+
         # TODO: Query only public/demo knowledge base
         # tenant_filter = "demo"
-        
+
         # Check message limit (from Redis)
         messages_remaining = await _check_guest_limit(request.guest_id)
-        
+
         if messages_remaining <= 0:
             raise HTTPException(
                 status_code=429,
@@ -76,15 +74,14 @@ async def public_query(
                 },
             )
     else:
-        top_k = request.top_k
         messages_remaining = None
-    
+
     # TODO: Execute RAG query
     # This is a placeholder - integrate with actual RAG pipeline
     answer = f"[Demo Response] Processing: {request.query[:50]}..."
     citations = []
     confidence = 0.0
-    
+
     # Build response
     response = GuestQueryResponse(
         answer=answer,
@@ -93,21 +90,21 @@ async def public_query(
         auth_state=context.auth_state.value,
         messages_remaining=messages_remaining,
     )
-    
+
     # Add upgrade prompt if guest is running low
     if context.is_guest and messages_remaining and messages_remaining <= 3:
         response.upgrade_prompt = (
             "Sign in to save your conversation and access more features"
         )
-    
+
     return response
 
 
-async def _check_guest_limit(guest_id: Optional[str]) -> int:
+async def _check_guest_limit(guest_id: str | None) -> int:
     """Check remaining messages for guest."""
     if not guest_id:
         return 5  # Anonymous gets fewer
-    
+
     # TODO: Check Redis for actual count
     # For now return default
     return 15

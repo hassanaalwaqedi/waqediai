@@ -50,7 +50,7 @@ class PermissionScope(str, Enum):
 class Permission:
     """
     A single permission grant.
-    
+
     Format: resource:action:scope
     Example: documents:read:department
     """
@@ -81,7 +81,7 @@ class Permission:
 class Role:
     """
     A role that can be assigned to users.
-    
+
     System roles cannot be modified.
     Tenant-specific roles can be customized.
     """
@@ -100,7 +100,7 @@ class Role:
 class Department:
     """
     An organizational unit within a tenant.
-    
+
     Departments can be nested (parent_id).
     """
 
@@ -115,7 +115,7 @@ class Department:
 class Tenant:
     """
     A tenant (organization) in the system.
-    
+
     All users and data belong to exactly one tenant.
     """
 
@@ -145,7 +145,7 @@ class UserProfile:
 class User:
     """
     A user in the system.
-    
+
     Users belong to exactly one tenant.
     They may optionally belong to a department.
     """
@@ -189,7 +189,7 @@ class User:
 class RefreshToken:
     """
     A refresh token for obtaining new access tokens.
-    
+
     Tokens are tracked by family to detect reuse attacks.
     """
 

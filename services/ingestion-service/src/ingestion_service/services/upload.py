@@ -6,28 +6,27 @@ Handles file upload validation, storage, and metadata creation.
 
 import hashlib
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID
 
 from ingestion_service.adapters import (
-    get_session,
     DocumentRepository,
-    get_storage_adapter,
     build_storage_key,
+    get_session,
+    get_storage_adapter,
 )
+from ingestion_service.config import get_settings
 from ingestion_service.domain import (
     Document,
     DocumentStatus,
-    FileCategory,
-    generate_document_id,
-    get_file_category,
-    is_allowed_content_type,
-    get_max_size_bytes,
     document_uploaded_event,
     document_validated_event,
+    generate_document_id,
+    get_file_category,
+    get_max_size_bytes,
+    is_allowed_content_type,
 )
 from ingestion_service.services.events import get_event_publisher
-from ingestion_service.config import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +73,7 @@ class QuotaExceeded(UploadError):
 class UploadService:
     """
     Service for handling file uploads.
-    
+
     Responsible for:
     - Validating file type and size
     - Storing file in object storage
@@ -95,7 +94,7 @@ class UploadService:
     ) -> Document:
         """
         Process a file upload.
-        
+
         Args:
             tenant_id: Tenant context.
             user_id: Uploading user.
@@ -105,10 +104,10 @@ class UploadService:
             department_id: Optional department scope.
             collection_id: Optional collection.
             correlation_id: Request correlation ID.
-            
+
         Returns:
             Created document record.
-            
+
         Raises:
             UnsupportedMediaType: If file type not allowed.
             FileTooLarge: If file exceeds size limit.
@@ -148,7 +147,7 @@ class UploadService:
 
             # Store file in object storage
             storage = get_storage_adapter()
-            storage_result = await storage.put_object(
+            await storage.put_object(
                 key=storage_key,
                 data=file_data,
                 content_type=content_type,
@@ -175,7 +174,7 @@ class UploadService:
                 status=DocumentStatus.UPLOADED,
                 storage_bucket=settings.storage_bucket,
                 storage_key=storage_key,
-                uploaded_at=datetime.now(timezone.utc),
+                uploaded_at=datetime.now(UTC),
             )
 
             document = await repo.create(document)
@@ -216,7 +215,7 @@ class UploadService:
     ) -> Document:
         """
         Validate document and queue for processing.
-        
+
         This is typically called after async validation checks.
         """
         async with get_session() as session:

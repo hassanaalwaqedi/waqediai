@@ -4,15 +4,13 @@ Kafka event consumer for extraction pipeline.
 Consumes document.uploaded events and triggers extraction processing.
 """
 
-import asyncio
 import json
 import logging
-from uuid import UUID
 from dataclasses import dataclass
-from typing import Callable, Awaitable
+from uuid import UUID
 
-from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 import aioboto3
+from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 
 from extraction_service.config import get_settings
 from extraction_service.services.worker import get_extraction_worker
@@ -36,7 +34,7 @@ class DocumentUploadedEvent:
 class ExtractionKafkaHandler:
     """
     Handles Kafka events for the extraction pipeline.
-    
+
     Subscribes to document.uploaded events and publishes document.extracted events.
     """
 
@@ -50,7 +48,7 @@ class ExtractionKafkaHandler:
     async def start(self) -> None:
         """Start the Kafka consumer and producer."""
         logger.info("Starting extraction Kafka handler...")
-        
+
         self._consumer = AIOKafkaConsumer(
             self.settings.kafka_topic_documents,
             bootstrap_servers=self.settings.kafka_bootstrap_servers,
@@ -59,18 +57,18 @@ class ExtractionKafkaHandler:
             auto_offset_reset="earliest",
             enable_auto_commit=True,
         )
-        
+
         self._producer = AIOKafkaProducer(
             bootstrap_servers=self.settings.kafka_bootstrap_servers,
             value_serializer=lambda v: json.dumps(v).encode("utf-8"),
         )
-        
+
         await self._consumer.start()
         await self._producer.start()
-        
+
         self._worker = get_extraction_worker()
         self._running = True
-        
+
         logger.info(f"Subscribed to topic: {self.settings.kafka_topic_documents}")
 
     async def stop(self) -> None:
@@ -86,13 +84,13 @@ class ExtractionKafkaHandler:
         """Main consumer loop."""
         if not self._consumer:
             raise RuntimeError("Consumer not started. Call start() first.")
-        
+
         logger.info("Extraction consumer running, waiting for events...")
-        
+
         async for message in self._consumer:
             if not self._running:
                 break
-                
+
             try:
                 await self._handle_message(message.value)
             except Exception as e:
@@ -101,27 +99,27 @@ class ExtractionKafkaHandler:
     async def _handle_message(self, event: dict) -> None:
         """Process a single event message."""
         event_type = event.get("event_type")
-        
+
         if event_type != "document.uploaded":
             return  # Ignore other event types
-        
+
         payload = event.get("payload", {})
         tenant_id = event.get("tenant_id")
         correlation_id = event.get("correlation_id")
-        
+
         logger.info(
             f"Processing document.uploaded event: "
             f"document_id={payload.get('document_id')}, "
             f"tenant_id={tenant_id}"
         )
-        
+
         try:
             # Fetch file from MinIO
             file_bytes = await self._fetch_from_storage(
                 payload.get("storage_bucket", self.settings.storage_bucket),
                 payload.get("storage_key")
             )
-            
+
             # Process extraction
             result = await self._worker.process(
                 document_id=payload["document_id"],
@@ -130,7 +128,7 @@ class ExtractionKafkaHandler:
                 content_type=payload["content_type"],
                 file_bytes=file_bytes,
             )
-            
+
             # Publish extracted event
             extracted_event = {
                 "event_type": "document.extracted",
@@ -148,20 +146,20 @@ class ExtractionKafkaHandler:
                     "processing_time_ms": result.processing_time_ms,
                 },
             }
-            
+
             await self._producer.send_and_wait(
                 self.settings.kafka_topic_documents,
                 value=extracted_event,
             )
-            
+
             logger.info(
                 f"Published document.extracted: document_id={payload['document_id']}, "
                 f"text_length={len(result.result_data.get('full_text', ''))}"
             )
-            
+
         except Exception as e:
             logger.exception(f"Extraction failed for document {payload.get('document_id')}: {e}")
-            
+
             # Publish failure event
             failure_event = {
                 "event_type": "document.extraction_failed",
@@ -181,7 +179,7 @@ class ExtractionKafkaHandler:
         """Fetch file from MinIO/S3."""
         settings = self.settings
         session = aioboto3.Session()
-        
+
         async with session.client(
             "s3",
             endpoint_url=settings.storage_endpoint,

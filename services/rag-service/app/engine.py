@@ -6,16 +6,15 @@ Coordinates the full RAG pipeline from query to answer.
 
 import logging
 import time
-from uuid import UUID
 
 from app.models import RAGQuery, RAGResponse
 from app.modules import (
+    get_audit_logger,
+    get_context_assembler,
+    get_generator,
+    get_prompt_builder,
     get_query_understanding,
     get_retriever,
-    get_context_assembler,
-    get_prompt_builder,
-    get_generator,
-    get_audit_logger,
 )
 
 logger = logging.getLogger(__name__)
@@ -24,7 +23,7 @@ logger = logging.getLogger(__name__)
 class RAGEngine:
     """
     Advanced RAG Engine.
-    
+
     Orchestrates: Query → Retrieve → Rank → Prompt → Generate → Cite
     """
 

@@ -4,31 +4,28 @@ Repository layer for identity data access.
 Provides tenant-scoped data access with proper isolation.
 """
 
-from datetime import datetime, timedelta, timezone
-from typing import Sequence
+from collections.abc import Sequence
+from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
-from sqlalchemy import select, update, and_, or_
+from sqlalchemy import and_, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from auth_service.adapters.database import (
-    UserModel,
-    TenantModel,
-    RoleModel,
-    PermissionModel,
     RefreshTokenModel,
-    DepartmentModel,
-    user_roles_table,
-)
-from auth_service.domain.models import (
-    User,
-    Tenant,
-    Role,
-    RefreshToken,
-    UserStatus,
+    RoleModel,
+    TenantModel,
+    UserModel,
 )
 from auth_service.config import get_settings
+from auth_service.domain.models import (
+    RefreshToken,
+    Role,
+    Tenant,
+    User,
+    UserStatus,
+)
 
 
 class UserRepository:
@@ -55,7 +52,7 @@ class UserRepository:
     async def get_by_email(self, email: str, tenant_id: UUID | None = None) -> tuple[User | None, str | None]:
         """
         Get user by email within tenant scope.
-        
+
         Returns tuple of (User, password_hash) for authentication.
         Password hash is only returned for this specific use case.
         """
@@ -99,8 +96,8 @@ class UserRepository:
             password_hash=password_hash,
             status=status.value,
             profile=profile or {},
-            created_at=datetime.now(timezone.utc),
-            updated_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
+            updated_at=datetime.now(UTC),
         )
         self.session.add(user_model)
         await self.session.flush()
@@ -111,7 +108,7 @@ class UserRepository:
         await self.session.execute(
             update(UserModel)
             .where(UserModel.id == user_id)
-            .values(last_login=datetime.now(timezone.utc))
+            .values(last_login=datetime.now(UTC))
         )
 
     async def update_status(self, user_id: UUID, status: UserStatus) -> None:
@@ -119,7 +116,7 @@ class UserRepository:
         await self.session.execute(
             update(UserModel)
             .where(UserModel.id == user_id)
-            .values(status=status.value, updated_at=datetime.now(timezone.utc))
+            .values(status=status.value, updated_at=datetime.now(UTC))
         )
 
     async def list_users(
@@ -197,8 +194,8 @@ class TenantRepository:
             tier=tier,
             is_active=True,
             settings={},
-            created_at=datetime.now(timezone.utc),
-            updated_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
+            updated_at=datetime.now(UTC),
         )
         self.session.add(tenant_model)
         await self.session.flush()
@@ -219,7 +216,7 @@ class RefreshTokenRepository:
     ) -> RefreshToken:
         """Store a new refresh token."""
         settings = get_settings()
-        expires_at = datetime.now(timezone.utc) + timedelta(
+        expires_at = datetime.now(UTC) + timedelta(
             days=settings.refresh_token_expire_days
         )
 
@@ -229,7 +226,7 @@ class RefreshTokenRepository:
             token_hash=token_hash,
             family_id=family_id,
             expires_at=expires_at,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
         self.session.add(token_model)
         await self.session.flush()
@@ -242,7 +239,7 @@ class RefreshTokenRepository:
                 and_(
                     RefreshTokenModel.token_hash == token_hash,
                     RefreshTokenModel.revoked_at.is_(None),
-                    RefreshTokenModel.expires_at > datetime.now(timezone.utc),
+                    RefreshTokenModel.expires_at > datetime.now(UTC),
                 )
             )
         )
@@ -254,7 +251,7 @@ class RefreshTokenRepository:
         await self.session.execute(
             update(RefreshTokenModel)
             .where(RefreshTokenModel.id == token_id)
-            .values(revoked_at=datetime.now(timezone.utc))
+            .values(revoked_at=datetime.now(UTC))
         )
 
     async def revoke_family(self, family_id: UUID) -> None:
@@ -267,7 +264,7 @@ class RefreshTokenRepository:
                     RefreshTokenModel.revoked_at.is_(None),
                 )
             )
-            .values(revoked_at=datetime.now(timezone.utc))
+            .values(revoked_at=datetime.now(UTC))
         )
 
     async def revoke_user_tokens(self, user_id: UUID) -> None:
@@ -280,7 +277,7 @@ class RefreshTokenRepository:
                     RefreshTokenModel.revoked_at.is_(None),
                 )
             )
-            .values(revoked_at=datetime.now(timezone.utc))
+            .values(revoked_at=datetime.now(UTC))
         )
 
 
@@ -300,12 +297,12 @@ class RoleRepository:
             conditions.append(
                 or_(
                     RoleModel.tenant_id == self.tenant_id,
-                    RoleModel.is_system == True,
+                    RoleModel.is_system,
                 )
             )
         else:
             # Only system roles
-            conditions.append(RoleModel.is_system == True)
+            conditions.append(RoleModel.is_system)
 
         query = (
             select(RoleModel)
@@ -323,11 +320,11 @@ class RoleRepository:
             conditions.append(
                 or_(
                     RoleModel.tenant_id == self.tenant_id,
-                    RoleModel.is_system == True,
+                    RoleModel.is_system,
                 )
             )
         else:
-            conditions.append(RoleModel.is_system == True)
+            conditions.append(RoleModel.is_system)
 
         query = (
             select(RoleModel)

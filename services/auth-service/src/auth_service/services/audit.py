@@ -5,8 +5,6 @@ Logs authentication events for compliance.
 """
 
 import logging
-from datetime import datetime, timezone
-from typing import Optional
 from uuid import UUID
 
 from fastapi import Request
@@ -18,16 +16,16 @@ logger = logging.getLogger(__name__)
 async def log_auth_event(
     session: AsyncSession,
     event_type: str,
-    user_id: Optional[UUID],
-    email: Optional[str],
+    user_id: UUID | None,
+    email: str | None,
     request: Request,
     success: bool,
-    failure_reason: Optional[str] = None,
-    metadata: Optional[dict] = None,
+    failure_reason: str | None = None,
+    metadata: dict | None = None,
 ) -> None:
     """
     Log authentication event to audit table.
-    
+
     Event types:
     - signup
     - signup_failed
@@ -50,7 +48,7 @@ async def log_auth_event(
 
         await session.execute(
             """
-            INSERT INTO audit.auth_events 
+            INSERT INTO audit.auth_events
             (event_type, user_id, email, tenant_id, ip_address, user_agent, success, failure_reason, metadata)
             VALUES (:event_type, :user_id, :email, :tenant_id, :ip_address, :user_agent, :success, :failure_reason, :metadata)
             """,
@@ -78,15 +76,15 @@ async def log_auth_event(
 
 
 async def log_authorization_decision(
-    user_id: Optional[UUID],
+    user_id: UUID | None,
     resource: str,
     action: str,
     allowed: bool,
-    reason: Optional[str] = None,
+    reason: str | None = None,
 ) -> None:
     """
     Log authorization decision for audit trail.
-    
+
     Args:
         user_id: The user making the request
         resource: Resource being accessed

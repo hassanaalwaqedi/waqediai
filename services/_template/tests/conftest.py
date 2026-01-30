@@ -2,9 +2,8 @@
 
 import pytest
 from fastapi.testclient import TestClient
-
-from service_name.main import create_app
 from service_name.config import Settings
+from service_name.main import create_app
 
 
 @pytest.fixture

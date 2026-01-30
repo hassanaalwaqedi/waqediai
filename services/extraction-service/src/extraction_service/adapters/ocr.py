@@ -6,16 +6,15 @@ Provides abstraction over OCR engines with EasyOCR as primary implementation.
 
 import logging
 import time
-from pathlib import Path
 from typing import Protocol
 
+from extraction_service.config import get_settings
 from extraction_service.domain import (
     BoundingBox,
-    TextBlock,
     OCRPageResult,
     OCRResult,
+    TextBlock,
 )
-from extraction_service.config import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +43,7 @@ class OCRModelAdapter(Protocol):
 class EasyOCRAdapter:
     """
     EasyOCR implementation of OCR adapter.
-    
+
     Supports 80+ languages with GPU acceleration.
     """
 
@@ -76,8 +75,9 @@ class EasyOCRAdapter:
     ) -> OCRPageResult:
         """Extract text from image using EasyOCR."""
         import io
-        from PIL import Image
+
         import numpy as np
+        from PIL import Image
 
         start_time = time.time()
 

@@ -4,15 +4,13 @@ Ollama HTTP adapter for LLM reasoning.
 Provides a clean interface to Ollama API with citation-enforced prompting.
 """
 
-import httpx
-import json
 import re
 from dataclasses import dataclass
-from typing import Any
 
+import httpx
 from app.config import get_settings
-from app.schemas import ContextChunk, ReasoningStrategy, Citation
 from app.logging import get_logger
+from app.schemas import Citation, ContextChunk, ReasoningStrategy
 
 logger = get_logger(__name__)
 
@@ -29,7 +27,7 @@ class LLMResponse:
 class OllamaClient:
     """
     HTTP client for Ollama API.
-    
+
     Enforces citation-based answering and context-only responses.
     """
 
@@ -148,15 +146,15 @@ For each claim you make, include a citation like [chunk_123] referencing the sou
     ) -> LLMResponse:
         """
         Execute reasoning with the LLM.
-        
+
         Args:
             query: User query.
             chunks: Context chunks for grounding.
             strategy: Reasoning strategy.
-            
+
         Returns:
             LLMResponse with answer, citations, and confidence.
-            
+
         Raises:
             httpx.HTTPError: On LLM communication failure.
         """

@@ -7,26 +7,25 @@ Handles upload, listing, details, and deletion of documents.
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Query, Request
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile
 
+from ingestion_service.adapters import DocumentRepository, get_session
 from ingestion_service.api.schemas import (
-    DocumentUploadResponse,
-    DocumentResponse,
-    DocumentListResponse,
-    DocumentListItem,
     DeleteResponse,
+    DocumentListItem,
+    DocumentListResponse,
+    DocumentResponse,
+    DocumentUploadResponse,
     ProblemDetail,
 )
-from ingestion_service.adapters import get_session, DocumentRepository
-from ingestion_service.domain import DocumentStatus, LegalHoldViolation
+from ingestion_service.domain import DocumentStatus
+from ingestion_service.middleware.auth import TenantContext, get_current_user
 from ingestion_service.services import (
-    UploadService,
-    UnsupportedMediaType,
     FileTooLarge,
     QuotaExceeded,
+    UnsupportedMediaType,
+    UploadService,
 )
-from ingestion_service.middleware.auth import get_current_user, TenantContext
 
 router = APIRouter(prefix="/documents", tags=["Documents"])
 
@@ -83,7 +82,7 @@ async def upload_document(
 ) -> DocumentUploadResponse:
     """
     Upload a new document.
-    
+
     Accepts PDF, images (PNG, JPG), audio (MP3, WAV), and video (MP4).
     """
     # Read file content
@@ -156,7 +155,7 @@ async def list_documents(
 ) -> DocumentListResponse:
     """
     List documents in the current tenant.
-    
+
     Returns cursor-based paginated results.
     """
     async with get_session() as session:
@@ -221,7 +220,7 @@ async def delete_document(
 ) -> DeleteResponse:
     """
     Request document deletion (soft delete).
-    
+
     Returns 202 Accepted. Actual deletion is asynchronous.
     """
     async with get_session() as session:

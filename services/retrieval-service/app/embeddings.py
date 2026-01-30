@@ -4,7 +4,6 @@ Embedding adapter with pluggable providers.
 Abstracts embedding generation for model-agnostic design.
 """
 
-from abc import ABC, abstractmethod
 from typing import Protocol
 
 from app.config import get_settings
@@ -33,7 +32,7 @@ class EmbeddingProvider(Protocol):
 class SentenceTransformerProvider:
     """
     Sentence-Transformers embedding provider.
-    
+
     Uses local models for privacy and performance.
     """
 

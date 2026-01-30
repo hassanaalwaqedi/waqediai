@@ -2,8 +2,8 @@
 Document events for async processing.
 """
 
-from dataclasses import dataclass, asdict
-from datetime import datetime, timezone
+from dataclasses import asdict, dataclass
+from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
 
@@ -35,7 +35,7 @@ def create_event(
     return DocumentEvent(
         event_id=f"evt_{uuid4().hex[:24]}",
         event_type=event_type,
-        timestamp=datetime.now(timezone.utc).isoformat(),
+        timestamp=datetime.now(UTC).isoformat(),
         tenant_id=tenant_id,
         correlation_id=correlation_id,
         payload=payload,

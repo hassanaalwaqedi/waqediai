@@ -5,13 +5,11 @@ Multi-stage retrieval with vector similarity and metadata filtering.
 """
 
 import logging
-from uuid import UUID
 
+from app.config import get_settings
+from app.models import EnrichedQuery, RAGQuery, RetrievedChunk
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
-
-from app.models import RAGQuery, EnrichedQuery, RetrievedChunk
-from app.config import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +17,7 @@ logger = logging.getLogger(__name__)
 class HybridRetriever:
     """
     Multi-stage retrieval system.
-    
+
     Combines:
     1. Vector similarity search
     2. Metadata filtering (tenant, language)

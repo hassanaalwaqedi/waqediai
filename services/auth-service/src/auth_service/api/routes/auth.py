@@ -4,39 +4,36 @@ Authentication API routes.
 Handles login, token refresh, and logout operations.
 """
 
-from datetime import datetime, timezone
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Response, Request, Cookie
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, Response
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from auth_service.adapters import (
+    RefreshTokenRepository,
+    TenantRepository,
+    UserRepository,
+    get_session,
+)
 from auth_service.api.schemas import (
     LoginRequest,
-    TokenResponse,
-    RefreshResponse,
     ProblemDetail,
+    RefreshResponse,
+    TokenResponse,
 )
-from auth_service.adapters import (
-    get_session,
-    UserRepository,
-    TenantRepository,
-    RefreshTokenRepository,
-)
+from auth_service.config import get_settings
 from auth_service.core import (
-    verify_password,
-    hash_password,
-    needs_rehash,
-    create_access_token,
-    create_refresh_token,
-    hash_refresh_token,
-    generate_token_family_id,
-    decode_access_token,
     TokenExpiredError,
     TokenInvalidError,
+    create_access_token,
+    create_refresh_token,
+    decode_access_token,
+    generate_token_family_id,
+    hash_refresh_token,
+    verify_password,
 )
 from auth_service.domain import UserStatus
-from auth_service.config import get_settings
 from auth_service.services.audit import log_auth_event
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -70,7 +67,7 @@ async def login(
 ) -> TokenResponse:
     """
     Authenticate user and issue tokens.
-    
+
     Returns access token in response body and refresh token
     in HttpOnly cookie.
     """
@@ -228,7 +225,7 @@ async def refresh_token(
 ) -> RefreshResponse:
     """
     Refresh access token using refresh token from cookie.
-    
+
     Implements token rotation - old refresh token is invalidated.
     """
     settings = get_settings()
@@ -340,7 +337,7 @@ async def logout(
 ) -> None:
     """
     Logout user by revoking all refresh tokens.
-    
+
     Clears refresh token cookie.
     """
     user_id = None

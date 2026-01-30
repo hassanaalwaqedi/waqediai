@@ -6,11 +6,9 @@ Handles email verification token generation and validation.
 
 import logging
 import secrets
-from datetime import datetime, timedelta, timezone
-from typing import Optional
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
-from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
@@ -26,11 +24,11 @@ async def create_verification_token(
 ) -> str:
     """
     Create email verification token.
-    
+
     Returns the token (to send via email).
     """
     token = secrets.token_urlsafe(TOKEN_LENGTH)
-    expires_at = datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRY_HOURS)
+    expires_at = datetime.now(UTC) + timedelta(hours=TOKEN_EXPIRY_HOURS)
 
     await session.execute(
         """
@@ -48,10 +46,10 @@ async def create_verification_token(
 async def verify_email_token(
     session: AsyncSession,
     token: str,
-) -> Optional[UUID]:
+) -> UUID | None:
     """
     Verify email token and mark as verified.
-    
+
     Returns user_id if valid, None if invalid/expired.
     """
     result = await session.execute(
@@ -76,7 +74,7 @@ async def verify_email_token(
         return UUID(user_id)
 
     # Expired
-    if expires_at < datetime.now(timezone.utc):
+    if expires_at < datetime.now(UTC):
         logger.warning(f"Expired verification token for user {user_id}")
         return None
 
@@ -87,7 +85,7 @@ async def verify_email_token(
         SET verified_at = :now
         WHERE token = :token
         """,
-        {"token": token, "now": datetime.now(timezone.utc)},
+        {"token": token, "now": datetime.now(UTC)},
     )
 
     # Update user email_verified status

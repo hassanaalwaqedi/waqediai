@@ -6,12 +6,11 @@ import logging
 from typing import Literal
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field
-
-from app.models import RAGQuery, AnswerType
-from app.engine import get_rag_engine
 from app.config import get_settings
+from app.engine import get_rag_engine
+from app.models import RAGQuery
+from fastapi import APIRouter
+from pydantic import BaseModel, Field
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -62,18 +61,18 @@ class HealthResponse(BaseModel):
 async def query(request: QueryRequest) -> QueryResponse:
     """
     Execute an Advanced RAG query.
-    
+
     Supports both guest mode (public knowledge) and authenticated mode (tenant-scoped).
     Returns a citation-backed answer grounded in retrieved context.
     """
     # Resolve tenant: use provided tenant_id or fall back to guest tenant
     effective_tenant = request.tenant_id if request.tenant_id else GUEST_TENANT_ID
-    
+
     logger.info(
         f"RAG query: mode={request.mode}, tenant={effective_tenant}, "
         f"query_length={len(request.query)}"
     )
-    
+
     engine = get_rag_engine()
 
     rag_query = RAGQuery(

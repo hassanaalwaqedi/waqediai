@@ -4,11 +4,9 @@ Guest Session Model
 Handles anonymous guest access with progressive authentication.
 """
 
-import secrets
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
+from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
 from enum import Enum
-from typing import Optional
 from uuid import uuid4
 
 import redis.asyncio as redis
@@ -27,7 +25,7 @@ class GuestSession:
     last_active: datetime
     message_count: int = 0
     rate_limit_remaining: int = 10
-    
+
     # Configurable limits
     MAX_MESSAGES_PER_SESSION: int = 20
     MAX_SESSION_DURATION_HOURS: int = 24
@@ -37,7 +35,7 @@ class GuestSession:
     @classmethod
     def create(cls) -> "GuestSession":
         """Create a new guest session."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         return cls(
             guest_id=f"guest_{uuid4().hex[:12]}",
             created_at=now,
@@ -48,7 +46,7 @@ class GuestSession:
     def is_expired(self) -> bool:
         """Check if session has expired."""
         expiry = self.created_at + timedelta(hours=self.MAX_SESSION_DURATION_HOURS)
-        return datetime.now(timezone.utc) > expiry
+        return datetime.now(UTC) > expiry
 
     @property
     def can_send_message(self) -> bool:
@@ -63,7 +61,7 @@ class GuestSession:
     def increment_message_count(self) -> None:
         """Increment message count."""
         self.message_count += 1
-        self.last_active = datetime.now(timezone.utc)
+        self.last_active = datetime.now(UTC)
 
     def to_dict(self) -> dict:
         """Serialize to dict."""
@@ -89,7 +87,7 @@ class GuestSession:
 class GuestSessionStore:
     """
     Redis-backed guest session storage.
-    
+
     Guest sessions are stored in Redis with TTL.
     They are NOT stored in the database.
     """
@@ -105,11 +103,11 @@ class GuestSessionStore:
         await self._save(session)
         return session
 
-    async def get_session(self, guest_id: str) -> Optional[GuestSession]:
+    async def get_session(self, guest_id: str) -> GuestSession | None:
         """Get existing guest session."""
         key = f"{self.prefix}{guest_id}"
         data = await self.redis.hgetall(key)
-        
+
         if not data:
             return None
 
@@ -148,17 +146,17 @@ class GuestSessionStore:
     async def check_rate_limit(self, guest_id: str) -> tuple[bool, int]:
         """
         Check and update rate limit for guest.
-        
+
         Returns (allowed, remaining).
         """
         key = f"{self.prefix}rate:{guest_id}"
         current = await self.redis.incr(key)
-        
+
         if current == 1:
             await self.redis.expire(key, 60)  # 1 minute window
-        
+
         limit = GuestSession.RATE_LIMIT_MAX_REQUESTS
         allowed = current <= limit
         remaining = max(0, limit - current)
-        
+
         return allowed, remaining

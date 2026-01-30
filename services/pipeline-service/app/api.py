@@ -5,13 +5,12 @@ API routes for pipeline service.
 import logging
 from uuid import UUID
 
-from fastapi import APIRouter, UploadFile, Form, HTTPException
-from pydantic import BaseModel, Field
-
-from app.models import DocumentInput, PipelineResult, ProcessingStatus
+from app.config import get_settings
+from app.models import DocumentInput
 from app.pipeline import get_pipeline
 from app.stages import get_vector_store
-from app.config import get_settings
+from fastapi import APIRouter, Form, HTTPException, UploadFile
+from pydantic import BaseModel
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -57,7 +56,7 @@ async def ingest_document(
 ) -> IngestResponse:
     """
     Ingest a document through the full pipeline.
-    
+
     Accepts: PDF, images (PNG/JPG), text files
     """
     settings = get_settings()

@@ -4,40 +4,38 @@ Database adapter for the Auth Service.
 Uses SQLAlchemy async with PostgreSQL for all identity data.
 """
 
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta, timezone
-from typing import AsyncGenerator
+from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import (
-    Column,
-    String,
     Boolean,
+    Column,
     DateTime,
     ForeignKey,
+    String,
     Table,
     Text,
-    select,
-    update,
-    and_,
 )
-from sqlalchemy.dialects.postgresql import UUID as PGUUID, JSONB
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
-from sqlalchemy.orm import DeclarativeBase, relationship, Mapped, mapped_column
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import UUID as PGUUID
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 from auth_service.config import get_settings
 from auth_service.domain.models import (
-    User,
-    UserStatus,
-    UserProfile,
-    Tenant,
-    TenantTier,
     Department,
-    Role,
-    RoleScope,
     Permission,
     PermissionScope,
     RefreshToken,
+    Role,
+    RoleScope,
+    Tenant,
+    TenantTier,
+    User,
+    UserProfile,
+    UserStatus,
 )
 
 
