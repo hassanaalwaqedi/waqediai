@@ -1,0 +1,42 @@
+[project]
+name = "waqedi-extraction-service"
+version = "0.1.0"
+description = "OCR & Speech-to-Text Extraction Service for WaqediAI"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.27.0",
+    "pydantic>=2.0",
+    "pydantic-settings>=2.0",
+    "asyncpg>=0.29.0",
+    "sqlalchemy[asyncio]>=2.0.0",
+    "aiokafka>=0.10.0",
+    "aioboto3>=12.0.0",
+    "easyocr>=1.7.0",
+    "openai-whisper>=20231117",
+    "pdf2image>=1.16.0",
+    "Pillow>=10.0.0",
+    "pydub>=0.25.0",
+    "langdetect>=1.0.9",
+    "httpx>=0.26.0",
+    "pdfplumber>=0.10.0",
+    "pymupdf>=1.23.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "pytest-asyncio>=0.23.0",
+    "black>=24.0",
+    "ruff>=0.1.0",
+    "mypy>=1.8.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

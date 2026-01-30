@@ -1,0 +1,34 @@
+# Default owners for everything
+* @waqedi/platform-team
+
+# Documentation
+/docs/ @waqedi/platform-team @waqedi/architects
+
+# Services ownership
+/services/api-gateway/ @waqedi/platform-team
+/services/bff-service/ @waqedi/frontend-team
+/services/query-orchestrator/ @waqedi/core-team
+/services/workflow-engine/ @waqedi/core-team
+/services/rag-engine/ @waqedi/ai-team
+/services/llm-inference/ @waqedi/ai-team
+/services/embedding-service/ @waqedi/ai-team
+/services/ocr-service/ @waqedi/ai-team
+/services/ingestion-gateway/ @waqedi/data-team
+/services/document-processor/ @waqedi/data-team
+/services/chunking-service/ @waqedi/data-team
+/services/indexing-service/ @waqedi/data-team
+/services/auth-service/ @waqedi/platform-team
+/services/audit-service/ @waqedi/platform-team
+
+# Shared libraries
+/libs/ @waqedi/core-team
+
+# Infrastructure
+/infra/ @waqedi/platform-team @waqedi/sre-team
+
+# Clients
+/clients/ @waqedi/frontend-team
+
+# Security-sensitive files
+/.github/workflows/ @waqedi/platform-team @waqedi/security-team
+/infra/kubernetes/**/secrets* @waqedi/security-team

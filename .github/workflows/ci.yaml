@@ -1,0 +1,141 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.changes.outputs.services }}
+      libs: ${{ steps.changes.outputs.libs }}
+      infra: ${{ steps.changes.outputs.infra }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            services:
+              - 'services/**'
+            libs:
+              - 'libs/**'
+            infra:
+              - 'infra/**'
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install dependencies
+        run: |
+          pip install ruff black mypy
+      - name: Run Ruff
+        run: ruff check .
+      - name: Run Black (check)
+        run: black --check .
+      - name: Run mypy
+        run: mypy libs/ services/ --ignore-missing-imports
+
+  test-libs:
+    needs: [detect-changes, lint]
+    if: needs.detect-changes.outputs.libs == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install dependencies
+        run: |
+          pip install pytest pytest-cov
+          pip install -e libs/common
+          pip install -e libs/observability
+          pip install -e libs/testing
+      - name: Run tests
+        run: pytest libs/ --cov=libs --cov-report=xml
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: coverage.xml
+
+  test-services:
+    needs: [detect-changes, lint]
+    if: needs.detect-changes.outputs.services == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - query-orchestrator
+          - rag-engine
+          - llm-inference
+          - embedding-service
+          - ingestion-gateway
+          - document-processor
+          - auth-service
+          - audit-service
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install service dependencies
+        run: |
+          cd services/${{ matrix.service }}
+          pip install -e ".[dev]"
+      - name: Run tests
+        run: |
+          cd services/${{ matrix.service }}
+          pytest --cov=. --cov-report=xml
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: services/${{ matrix.service }}/coverage.xml
+
+  build-images:
+    needs: [test-services]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - query-orchestrator
+          - rag-engine
+          - llm-inference
+          - embedding-service
+          - ingestion-gateway
+          - document-processor
+          - auth-service
+          - audit-service
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.CONTAINER_REGISTRY }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: services/${{ matrix.service }}
+          push: true
+          tags: |
+            ${{ secrets.CONTAINER_REGISTRY }}/waqedi-${{ matrix.service }}:${{ github.sha }}
+            ${{ secrets.CONTAINER_REGISTRY }}/waqedi-${{ matrix.service }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

@@ -1,0 +1,21 @@
+[project]
+name = "waqedi-observability"
+version = "0.1.0"
+description = "Observability utilities for WaqediAI services"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+full = [
+    "opentelemetry-api>=1.20",
+    "opentelemetry-sdk>=1.20",
+    "opentelemetry-exporter-otlp>=1.20",
+    "prometheus-client>=0.17",
+]
+dev = [
+    "pytest>=7.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

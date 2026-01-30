@@ -1,0 +1,12 @@
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+pydantic>=2.0
+pydantic-settings>=2.0
+python-multipart>=0.0.6
+asyncpg>=0.29.0
+sqlalchemy[asyncio]>=2.0.0
+aioboto3>=12.0.0
+aiokafka>=0.10.0
+httpx>=0.26.0
+python-jose>=3.3.0
+botocore>=1.34.0
