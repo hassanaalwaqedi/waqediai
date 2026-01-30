@@ -121,7 +121,7 @@ async def upload_document(
                 "status": 415,
                 "detail": e.message,
             },
-        )
+        ) from e
     except FileTooLarge as e:
         raise HTTPException(
             status_code=413,
@@ -131,7 +131,7 @@ async def upload_document(
                 "status": 413,
                 "detail": e.message,
             },
-        )
+        ) from e
     except QuotaExceeded as e:
         raise HTTPException(
             status_code=429,
@@ -141,7 +141,7 @@ async def upload_document(
                 "status": 429,
                 "detail": e.message,
             },
-        )
+        ) from e
 
 
 @router.get("", response_model=DocumentListResponse)

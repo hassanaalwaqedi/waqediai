@@ -6,6 +6,7 @@ No external auth providers.
 """
 
 import logging
+from typing import Annotated
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
@@ -45,7 +46,7 @@ logger = logging.getLogger(__name__)
 async def signup(
     request: SignupRequest,
     http_request: Request,
-    session: AsyncSession = Depends(get_session),
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
     """
     Register new user with email and password.
@@ -121,7 +122,7 @@ async def signup(
 async def verify_email(
     request: VerifyEmailRequest,
     http_request: Request,
-    session: AsyncSession = Depends(get_session),
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
     """Verify email with token."""
     user_id = await verify_email_token(session, request.token)
@@ -153,7 +154,7 @@ async def login(
     request: LoginRequest,
     response: Response,
     http_request: Request,
-    session: AsyncSession = Depends(get_session),
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
     """
     Login with email and password.
@@ -255,7 +256,7 @@ async def google_oauth(
     request: GoogleOAuthRequest,
     response: Response,
     http_request: Request,
-    session: AsyncSession = Depends(get_session),
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
     """
     Login/signup with Google.

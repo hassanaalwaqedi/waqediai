@@ -13,19 +13,20 @@ from datetime import UTC, datetime
 from typing import Any
 
 # Context variable for request-scoped fields
-_log_context: ContextVar[dict[str, Any]] = ContextVar("log_context", default={})
+_log_context: ContextVar[dict[str, Any] | None] = ContextVar("log_context", default=None)
 
 
 def set_log_context(**kwargs: Any) -> None:
     """Set request-scoped log context fields."""
-    current = _log_context.get().copy()
+    current = _log_context.get()
+    current = {} if current is None else current.copy()
     current.update(kwargs)
     _log_context.set(current)
 
 
 def clear_log_context() -> None:
     """Clear request-scoped log context."""
-    _log_context.set({})
+    _log_context.set(None)
 
 
 class JsonFormatter(logging.Formatter):
@@ -56,7 +57,9 @@ class JsonFormatter(logging.Formatter):
         }
 
         # Add context fields
-        log_data.update(_log_context.get())
+        context = _log_context.get()
+        if context:
+            log_data.update(context)
 
         # Add exception info if present
         if record.exc_info:

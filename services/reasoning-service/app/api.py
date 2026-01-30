@@ -83,7 +83,7 @@ async def reason(request: ReasoningRequest) -> ReasoningResponse:
                 "status": 503,
                 "detail": "Failed to communicate with LLM service",
             },
-        )
+        ) from e
 
     duration_ms = int((time.time() - start_time) * 1000)
 

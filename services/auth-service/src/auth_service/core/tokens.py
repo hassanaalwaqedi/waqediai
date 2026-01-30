@@ -160,10 +160,10 @@ def decode_access_token(token: str) -> TokenClaims:
             aud=payload["aud"],
         )
 
-    except ExpiredSignatureError:
-        raise TokenExpiredError("Access token has expired")
+    except ExpiredSignatureError as e:
+        raise TokenExpiredError("Access token has expired") from e
     except JWTError as e:
-        raise TokenInvalidError(f"Invalid access token: {e}")
+        raise TokenInvalidError(f"Invalid access token: {e}") from e
 
 
 def create_refresh_token() -> str:

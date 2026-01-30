@@ -5,6 +5,8 @@ Handles AI queries from guest users with restrictions.
 """
 
 
+from typing import Annotated
+
 from app.middleware.guest_aware import (
     RequestContext,
     allow_guest,
@@ -40,7 +42,7 @@ GUEST_DEMO_KNOWLEDGE_ONLY = True
 @router.post("/query/public", response_model=GuestQueryResponse)
 async def public_query(
     request: GuestQueryRequest,
-    context: RequestContext = Depends(allow_guest),
+    context: Annotated[RequestContext, Depends(allow_guest)],
 ):
     """
     Public query endpoint that supports both guests and authenticated users.

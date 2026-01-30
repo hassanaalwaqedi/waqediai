@@ -94,7 +94,7 @@ async def get_current_user(
             roles=payload.get("roles", []),
         )
 
-    except ExpiredSignatureError:
+    except ExpiredSignatureError as e:
         raise HTTPException(
             status_code=401,
             detail={
@@ -104,7 +104,7 @@ async def get_current_user(
                 "detail": "Access token has expired",
             },
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from e
     except JWTError as e:
         raise HTTPException(
             status_code=401,
@@ -115,5 +115,5 @@ async def get_current_user(
                 "detail": str(e),
             },
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from e
 

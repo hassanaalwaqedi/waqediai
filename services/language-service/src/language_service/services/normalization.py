@@ -166,16 +166,15 @@ class TextNormalizer:
                 ))
                 text = re.sub(alef_pattern, 'ا', text)
 
-        if rules.get("normalize_yeh"):
+        if rules.get("normalize_yeh") and 'ى' in text:
             # ى → ي
-            if 'ى' in text:
-                changes.append(NormalizationChange(
-                    position=0,
-                    original="ى",
-                    replacement="ي",
-                    rule="arabic_yeh",
-                ))
-                text = text.replace('ى', 'ي')
+            changes.append(NormalizationChange(
+                position=0,
+                original="ى",
+                replacement="ي",
+                rule="arabic_yeh",
+            ))
+            text = text.replace('ى', 'ي')
 
         return text, changes
 
@@ -185,16 +184,15 @@ class TextNormalizer:
         """English-specific normalization."""
         changes = []
 
-        if rules.get("smart_quotes"):
+        if rules.get("smart_quotes") and ('"' in text or '"' in text):
             # Smart quotes to straight
-            if '"' in text or '"' in text:
-                changes.append(NormalizationChange(
-                    position=0,
-                    original="[smart quotes]",
-                    replacement='"',
-                    rule="english_quotes",
-                ))
-                text = text.replace('"', '"').replace('"', '"')
+            changes.append(NormalizationChange(
+                position=0,
+                original="[smart quotes]",
+                replacement='"',
+                rule="english_quotes",
+            ))
+            text = text.replace('"', '"').replace('"', '"')
 
         if rules.get("ligatures"):
             ligatures = [('ﬁ', 'fi'), ('ﬂ', 'fl'), ('ﬀ', 'ff')]
